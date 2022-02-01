@@ -1,4 +1,4 @@
-const {Student} = require('../models');
+const {Student, Course} = require('../models');
 
 //view all
 module.exports.viewAll = async function(req,res){
@@ -8,11 +8,20 @@ module.exports.viewAll = async function(req,res){
 
 //profile
 module.exports.viewProfile= async function (req,res) {
-    const student = await Student.findByPk(req.params.id);
+    const student = await Student.findByPk(req.params.id, {
+        include: 'courses'
+    });
+    const courses = await Course.findAll();
+    let availableCourses = [];
+    for (let i=0; i<courses.length; i++){
+        if(!studentHasCourse(student, courses[i])){
+            availableCourses.push(courses[i]);
+        }
+    }
     res.render('student/profile', {student})
 };
 
-//render add
+//render add form
 module.exports.renderAddForm = function(req,res){
     const student = {
         first_name: '',
@@ -32,7 +41,7 @@ module.exports.addStudent = async function(req,res){
     res.redirect(`/students/profile/${student.id}`);
 };
 
-//render edit
+//render edit form
 module.exports.renderEditForm = async function(req,res){
     const student = await Student.findByPk(req.params.id);
     res.render('student/edit', {student});
@@ -62,4 +71,13 @@ module.exports.deleteStudent = async function (req,res) {
         }
     });
     res.redirect(`/students`);
+};
+
+function studentHasCourse(student, course){
+    for (let i=0; i<student.courses.length; i++){
+        if (course.id === student.courses[i].id){
+            return true
+        }
+    }
+    return false
 };

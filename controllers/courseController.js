@@ -1,5 +1,5 @@
 const {Course} = require('../models');
-const departments = ['Math', 'English', 'Music', 'Art', 'PE', 'World Languages', 'Social Studies', 'Science', 'Computer Science'].sort();
+const departments = ['Math', 'English', 'Music', 'Art', 'PE', 'World Languages', 'Social Studies', 'Science', 'Computer Science', 'History', 'Language', ].sort();
 
 //view all
 module.exports.viewAll = async function(req,res){
@@ -9,7 +9,9 @@ module.exports.viewAll = async function(req,res){
 
 //profile
 module.exports.viewProfile= async function (req,res) {
-    const course = await Course.findByPk(req.params.id);
+    const course = await Course.findByPk(req.params.id, {
+        include: 'students'
+    });
     res.render('course/profile', {course})
 };
 
